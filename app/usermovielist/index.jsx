@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StatusBar, TouchableOpacity, Image } from 'react-native'
+import { View, Text, FlatList, StatusBar, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { db } from '@/configs/FirebaseConfig'
 import { collection, getDoc, getDocs, query, where } from 'firebase/firestore'
@@ -13,6 +13,7 @@ export default function index() {
     const {user} =useUser()
     const [movieIdList, setMovieIdList] = useState([])
     const [movieList, setMovieList] = useState([])
+    const [loading, setLoading] = useState(false)
     useEffect(()=> {
       user && GetUserMovieList()
     },[])
@@ -28,6 +29,7 @@ export default function index() {
       }
     }, [movieIdList]);
     const GetUserMovieList= async () => {
+        setLoading(true)
         try{
           const q = query(collection(db,'UserMovieList'),where('userEmail','==',user?.primaryEmailAddress?.emailAddress))
           const querySnapshot = await getDocs(q)
@@ -42,8 +44,10 @@ export default function index() {
       const {data, status} = await findMovieById(movieId);
       if(status === 200) {
         setMovieList((prev) => [...prev, data]);
+        setLoading(false)
       } else {
         Alert.alert(`Request failed with ${data}`)
+        setLoading(false)
       }
     }
     const handleOnClick = (movieData) => {
@@ -59,7 +63,7 @@ export default function index() {
       marginTop:StatusBar.currentHeight
     }}>
       <Text style={{fontFamily:'rubik-bold',fontSize:20,color:'white'}}>My Movie List</Text>
-      <FlatList data={movieList} keyExtractor={(item) => item.id.toString()} renderItem={({item, index}) => (
+      {loading?<ActivityIndicator size={'large'} color={'white'} style={{marginTop:5}}/> :<FlatList data={movieList} keyExtractor={(item) => item.id.toString()} renderItem={({item, index}) => (
         <TouchableOpacity onPress={()=> handleOnClick(item)} style={{
           width:'100%',
           height:'auto',
@@ -74,7 +78,7 @@ export default function index() {
           <Text style={{flex:1,fontFamily:'rubik-bold',fontSize:16,color:'white'}}>{item.original_title}</Text>
           <AntDesign name="playcircleo" size={30} color="white" />
         </TouchableOpacity>
-      )}/>
+      )}/>}
     </View>
   )
 }

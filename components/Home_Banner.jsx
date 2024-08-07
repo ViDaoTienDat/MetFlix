@@ -66,7 +66,7 @@ const Home_Banner = () => {
             </TouchableOpacity>
             <TouchableOpacity 
                 onPress={() => {
-                    router.push('/moviescreen')
+                  router.navigate({pathname:'/moviescreen/screen',params:{id:item.id}})
                 }}
                 style={styles.playButton}>
                 
@@ -76,7 +76,9 @@ const Home_Banner = () => {
                     fontSize:responsiveFontSize(2.3)
                 }]}>Play</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.playButton,{backgroundColor:'#333333',gap:5, width:responsiveWidth(24)}]}>
+            <TouchableOpacity onPress={()=> {
+              router.push({pathname:'/moviescreen',params: item})
+            }} style={[styles.playButton,{backgroundColor:'#333333',gap:5, width:responsiveWidth(24)}]}>
                 <AntDesign name="question" size={21} color="white" />
                 <Text style={styles.titles}>Info</Text>
             </TouchableOpacity>
@@ -101,6 +103,7 @@ const styles = StyleSheet.create({
         
     },
     movieBanner: {
+        resizeMode:'cover',
         width:responsiveWidth(100),
         height:'100%',
         justifyContent:'flex-end',

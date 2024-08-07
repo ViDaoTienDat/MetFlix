@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import WebView from 'react-native-webview'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { useLocalSearchParams } from 'expo-router';
+import * as NavigationBar from 'expo-navigation-bar';
+
 
 
 export default function screen() {
@@ -21,8 +23,10 @@ export default function screen() {
   useEffect(() => {
     
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+    NavigationBar.setVisibilityAsync("hidden");
     return () => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+      NavigationBar.setVisibilityAsync("visible");
     };
   }, [])
 
@@ -38,10 +42,8 @@ export default function screen() {
       <StatusBar hidden />
       <WebView
           source={{ uri: `https://vidsrc.xyz/embed/movie/${id}` }}
-          
           style={{ width: '100%', height: '100%' }}
-          onShouldStartLoadWithRequest={handleWebViewNavigation} // for IOs
-          setSupportMultipleWindows={false} // for Android
+          
         />
       {/* <WebView
           source={{

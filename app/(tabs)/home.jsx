@@ -1,8 +1,8 @@
 import Home_Banner from '@/components/Home_Banner'
 import MovieCards from '@/components/MovieCards'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
-import { Link } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { Link, SplashScreen, useNavigation } from 'expo-router'
+import { useCallback, useEffect, useState } from 'react'
 import { Alert, FlatList, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
 
 import { getNowPlayingMoviesApi, getPopularMoviesApi, getTopRatedMoviesApi } from '../apis/network'
@@ -10,97 +10,81 @@ import { getNowPlayingMoviesApi, getPopularMoviesApi, getTopRatedMoviesApi } fro
 
 
 
-
+SplashScreen.preventAutoHideAsync();
 export default function home() {
+  const [appIsReady, setAppIsReady] = useState(false);
+
   const [popularMoviesData, setpopularMoviesData] = useState([])
   const [nowplayingMoviesData, setNowplayingMoviesData] = useState([])
-  const [topRatedMoviesData, setTopRatedMoviesDatagMoviesData] = useState([])
+  const [topRatedMoviesData, setTopRatedMoviesData] = useState([])
 
 
   
   const { user } = useUser()
   
-  useEffect(()=> {
-    const handleApi = async () => {
-      const {data, status} = await getNowPlayingMoviesApi();
-      if(status === 200) {
-        setNowplayingMoviesData(data.results)
-      } else {
-        Alert.alert(`Request failed with ${data}`)
-      }
-    }
-    handleApi()
-  },[])
-  useEffect(()=> {
-    const handleApi = async () => {
-      const {data, status} = await getPopularMoviesApi();
-      if(status === 200) {
-        setpopularMoviesData(data.results)
-      } else {
-        Alert.alert(`Request failed with ${data}`)
-      }
-    }
-    handleApi()
-  },[])
-  useEffect(()=> {
-    const handleApi = async () => {
-      const {data, status} = await getTopRatedMoviesApi();
-      if(status === 200) {
-        setTopRatedMoviesDatagMoviesData(data.results)
-      } else {
-        Alert.alert(`Request failed with ${data}`)
-      }
-    }
-    handleApi()
-  },[])
-  // const getProduct= () => {
-  //   const URL = 'https://vidsrc.to/vapi/movie/new'
+  
+  useEffect(() => {
+    const handleApis = async () => {
+      try {
+        // Fetch now playing movies
+        const nowPlayingResponse = await getNowPlayingMoviesApi();
+        if (nowPlayingResponse.status === 200) {
+          setNowplayingMoviesData(nowPlayingResponse.data.results);
+        } else {
+          Alert.alert(`Now Playing Movies request failed with ${nowPlayingResponse.data}`);
+        }
 
-  //   fetch(URL)
-  //     .then((res) => {
-  //       if(!res.ok) {
-  //         throw new Error("Something went wrong")
-  //       }
-  //       return res.json()
-  //     })
-  //     .then((data) => {
-  //       console.log(data.result.items[0].embed_url_imdb);
-  //       data.result.items.forEach((item)=> {
-  //         console.log(item.title);
-  //         setListMovie(prev => [...prev,item])
-          
-  //       })
-  //     })
-  //     .catch((error) => {
-  //       console.log(error.message);
-        
-  //     })
-  // }
+        // Fetch popular movies
+        const popularResponse = await getPopularMoviesApi();
+        if (popularResponse.status === 200) {
+          setpopularMoviesData(popularResponse.data.results);
+        } else {
+          Alert.alert(`Popular Movies request failed with ${popularResponse.data}`);
+        }
+
+        // Fetch top rated movies
+        const topRatedResponse = await getTopRatedMoviesApi();
+        if (topRatedResponse.status === 200) {
+          setTopRatedMoviesData(topRatedResponse.data.results);
+        } else {
+          Alert.alert(`Top Rated Movies request failed with ${topRatedResponse.data}`);
+        }
+       
+      } catch (error) {
+        Alert.alert(`API request failed with error: ${error.message}`);
+      } finally{
+        setAppIsReady(true)
+      }
+    };
+
+    handleApis();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null;
+  }
+ 
   return (
-    <View style={styles.container}>
-      
-        {/* <Text>Xin chao {user?.primaryEmailAddress?.emailAddress}</Text>
-        <FlatList
-          data={listmovie}
-          renderItem={({item}) => (
-            <Text>{item.title}</Text>
-          )}
-        /> */}
-        <ScrollView style={styles.scrollView}
-          
-        >
-         
-        
+    <View style={styles.container} onLayout={onLayoutRootView}>
+        <ScrollView style={styles.scrollView}>
           <Home_Banner/>
-          
           <View style={styles.subContainer}>
             <MovieCards title='Now playing' data={nowplayingMoviesData}/>
             <MovieCards title='Popular' data={popularMoviesData}/>
             <MovieCards title='Top Rated' data={topRatedMoviesData}/>
           </View>
         </ScrollView>
-
-      
     </View>
   )
 }

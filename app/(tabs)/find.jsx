@@ -15,6 +15,8 @@ export default function find() {
   }
   const [movieTitleInput, setMovieTitleInput] = useState('')
   const [listMovieFound, setListMovieFound] = useState([])
+
+
   const handleApi = async (movieName) => {
     const {data, status} = await findMovieByName(movieName);
     if(status === 200) {
