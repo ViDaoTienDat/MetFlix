@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient';
 import * as WebBrowser from 'expo-web-browser'
-import { Link } from 'expo-router'
+import { Link, SplashScreen } from 'expo-router'
 import { useOAuth } from '@clerk/clerk-expo'
 import * as Linking from 'expo-linking'
 
@@ -11,6 +11,7 @@ export const useWarmUpBrowser = () => {
     // Warm up the android browser to improve UX
     // https://docs.expo.dev/guides/authentication/#improving-user-experience
     void WebBrowser.warmUpAsync()
+    // void SplashScreen.hideAsync()
     return () => {
       void WebBrowser.coolDownAsync()
     }
@@ -18,8 +19,10 @@ export const useWarmUpBrowser = () => {
 }
 
 WebBrowser.maybeCompleteAuthSession()
+
 export default function LoginScreen() {
   useWarmUpBrowser()
+  const [appIsReady, setAppIsReady] = useState(false);
 
   const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' })
 
@@ -36,6 +39,19 @@ export default function LoginScreen() {
       console.error('OAuth error', err)
     }
   }, [])
+
+  const onLayoutRootView = useCallback(async () => {
+   
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      await SplashScreen.hideAsync();
+    
+  }, []);
+
+ 
     return (
         <View
           style={{
@@ -44,6 +60,7 @@ export default function LoginScreen() {
             alignItems: "center",
             gap:50
           }}
+          onLayout={onLayoutRootView}
         > 
     
     

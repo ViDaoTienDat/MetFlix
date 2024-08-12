@@ -10,7 +10,7 @@ import { getNowPlayingMoviesApi, getPopularMoviesApi, getTopRatedMoviesApi } fro
 
 
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync()
 export default function home() {
   const [appIsReady, setAppIsReady] = useState(false);
 

@@ -6,18 +6,18 @@ import UserIntro from '@/components/UserIntro'
 import MenuList from '@/components/MenuList'
 
 export default function myprofile() {
-  const { signOut } = useAuth()
+
   return (
     <View style={{
       flex: 1,
-      padding:20,
-      backgroundColor:'black'
+      padding: 20,
+      backgroundColor: 'black'
     }}>
       {/* User Info */}
-      <UserIntro/>
+      <UserIntro />
 
       {/* Menu List */}
-      <MenuList/>
+      <MenuList />
     </View>
   )
 }

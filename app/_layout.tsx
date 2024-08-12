@@ -1,8 +1,10 @@
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { ClerkProvider, ClerkLoaded, SignedIn, SignedOut } from '@clerk/clerk-expo'
 import * as SecureStore from 'expo-secure-store'
 import LoginScreen from "@/components/LoginScreen";
+import { useEffect } from "react";
+import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar";
 
 const tokenCache = {
   async getToken(key: string) {
@@ -42,10 +44,13 @@ export default function RootLayout() {
     'rubik-bold': require('./../assets/fonts/Rubik-Bold.ttf'),
     'rubik-light': require('./../assets/fonts/Rubik-Light.ttf'),
   })
-  
+  useEffect(() => {
+    setStatusBarBackgroundColor('#000',false)
+    setStatusBarStyle('light')
+  },[])
   return (
     <ClerkProvider tokenCache={tokenCache}  publishableKey={publishableKey}>
-      <ClerkLoaded>
+      <ClerkLoaded >
         <SignedIn>
           <Stack screenOptions={{
             headerShown: false,
